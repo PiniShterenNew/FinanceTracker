@@ -38,14 +38,12 @@ export default function AuthPage() {
   const { user, loginMutation, registerMutation } = useAuth();
   const [_, navigate] = useLocation();
 
-  // If user is already logged in, redirect to home page
   useEffect(() => {
     if (user) {
       navigate("/");
     }
   }, [user, navigate]);
 
-  // Login form
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -54,7 +52,6 @@ export default function AuthPage() {
     },
   });
 
-  // Register form
   const registerForm = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -65,74 +62,35 @@ export default function AuthPage() {
     },
   });
 
-  // Handle login form submission
   const onLoginSubmit = (data: LoginFormValues) => {
     loginMutation.mutate(data);
   };
 
-  // Handle registration form submission
   const onRegisterSubmit = (data: RegisterFormValues) => {
     const { confirmPassword, ...registerData } = data;
-    // Cast the data to InsertUser type since we need to handle the required fields
     registerMutation.mutate(registerData as any);
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      {/* Hero section */}
-      <div className="hidden md:flex w-1/2 bg-primary/10 items-center justify-center p-10">
-        <div className="max-w-md">
-          <h1 className="text-4xl font-bold tracking-tight mb-4">{t("My Wallet")}</h1>
-          <p className="text-xl text-muted-foreground mb-6">
-            {t("A simple, secure way to manage your personal finances.")}
-          </p>
-          <ul className="space-y-2">
-            <li className="flex items-center">
-              <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center mr-2">
-                <span className="text-primary text-sm">✓</span>
-              </div>
-              <span>{t("Track your expenses and income")}</span>
-            </li>
-            <li className="flex items-center">
-              <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center mr-2">
-                <span className="text-primary text-sm">✓</span>
-              </div>
-              <span>{t("Create and manage budgets")}</span>
-            </li>
-            <li className="flex items-center">
-              <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center mr-2">
-                <span className="text-primary text-sm">✓</span>
-              </div>
-              <span>{t("Visualize your spending habits")}</span>
-            </li>
-            <li className="flex items-center">
-              <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center mr-2">
-                <span className="text-primary text-sm">✓</span>
-              </div>
-              <span>{t("Access your data anytime, anywhere")}</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-
+    <div className="min-h-screen flex flex-col md:flex-row">
       {/* Auth forms */}
       <div className="flex items-center justify-center w-full md:w-1/2 p-4">
         <div className="w-full max-w-md">
-          <h1 className="text-3xl font-bold mb-6 text-center md:hidden">{t("My Wallet")}</h1>
-          
+          <h1 className="text-3xl font-bold mb-6 text-center md:hidden">{t("myWallet")}</h1>
+
           <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="login">{t("Login")}</TabsTrigger>
-              <TabsTrigger value="register">{t("Register")}</TabsTrigger>
+              <TabsTrigger value="login">{t("login")}</TabsTrigger>
+              <TabsTrigger value="register">{t("register")}</TabsTrigger>
             </TabsList>
-            
+
             {/* Login form */}
             <TabsContent value="login">
               <Card>
                 <CardHeader>
-                  <CardTitle>{t("Login to your account")}</CardTitle>
+                  <CardTitle>{t("loginToAccount")}</CardTitle>
                   <CardDescription>
-                    {t("Enter your username and password to access your wallet")}
+                    {t("enterCredentials")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -143,10 +101,12 @@ export default function AuthPage() {
                         name="username"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("Username")}</FormLabel>
+                            <FormLabel>{t("username")}</FormLabel>
                             <FormControl>
                               <Input
-                                placeholder={t("Enter your username")}
+                                type="text"
+                                placeholder={t("enterUsername")}
+                                disabled={loginMutation.isLoading}
                                 {...field}
                               />
                             </FormControl>
@@ -159,11 +119,12 @@ export default function AuthPage() {
                         name="password"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("Password")}</FormLabel>
+                            <FormLabel>{t("password")}</FormLabel>
                             <FormControl>
                               <Input
                                 type="password"
-                                placeholder={t("Enter your password")}
+                                placeholder={t("enterPassword")}
+                                disabled={loginMutation.isLoading}
                                 {...field}
                               />
                             </FormControl>
@@ -171,41 +132,41 @@ export default function AuthPage() {
                           </FormItem>
                         )}
                       />
-                      <Button 
-                        type="submit" 
+                      <Button
+                        type="submit"
                         className="w-full"
-                        disabled={loginMutation.isPending}
+                        disabled={loginMutation.isLoading}
                       >
-                        {loginMutation.isPending && (
+                        {loginMutation.isLoading && (
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         )}
-                        {t("Login")}
+                        {t("login")}
                       </Button>
                     </form>
                   </Form>
                 </CardContent>
                 <CardFooter className="flex flex-col items-center">
                   <div className="text-sm text-muted-foreground">
-                    {t("Don't have an account?")}
+                    {t("noAccount")}
                     <Button
                       variant="link"
                       className="pl-1 pr-0"
                       onClick={() => setActiveTab("register")}
                     >
-                      {t("Sign up")}
+                      {t("signUp")}
                     </Button>
                   </div>
                 </CardFooter>
               </Card>
             </TabsContent>
-            
+
             {/* Register form */}
             <TabsContent value="register">
               <Card>
                 <CardHeader>
-                  <CardTitle>{t("Create an account")}</CardTitle>
+                  <CardTitle>{t("createAccount")}</CardTitle>
                   <CardDescription>
-                    {t("Register to start tracking your finances")}
+                    {t("registerToStart")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -216,10 +177,12 @@ export default function AuthPage() {
                         name="username"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("Username")}</FormLabel>
+                            <FormLabel>{t("username")}</FormLabel>
                             <FormControl>
                               <Input
-                                placeholder={t("Choose a username")}
+                                type="text"
+                                placeholder={t("chooseUsername")}
+                                disabled={registerMutation.isLoading}
                                 {...field}
                               />
                             </FormControl>
@@ -232,11 +195,12 @@ export default function AuthPage() {
                         name="email"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("Email")}</FormLabel>
+                            <FormLabel>{t("email")}</FormLabel>
                             <FormControl>
                               <Input
                                 type="email"
-                                placeholder={t("Enter your email")}
+                                placeholder={t("enterEmail")}
+                                disabled={registerMutation.isLoading}
                                 {...field}
                               />
                             </FormControl>
@@ -249,11 +213,12 @@ export default function AuthPage() {
                         name="password"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("Password")}</FormLabel>
+                            <FormLabel>{t("password")}</FormLabel>
                             <FormControl>
                               <Input
                                 type="password"
-                                placeholder={t("Create a password")}
+                                placeholder={t("createPassword")}
+                                disabled={registerMutation.isLoading}
                                 {...field}
                               />
                             </FormControl>
@@ -266,11 +231,12 @@ export default function AuthPage() {
                         name="confirmPassword"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("Confirm Password")}</FormLabel>
+                            <FormLabel>{t("confirmPassword")}</FormLabel>
                             <FormControl>
                               <Input
                                 type="password"
-                                placeholder={t("Confirm your password")}
+                                placeholder={t("confirmPasswordPlaceholder")}
+                                disabled={registerMutation.isLoading}
                                 {...field}
                               />
                             </FormControl>
@@ -278,34 +244,69 @@ export default function AuthPage() {
                           </FormItem>
                         )}
                       />
-                      <Button 
-                        type="submit" 
+                      <Button
+                        type="submit"
                         className="w-full"
-                        disabled={registerMutation.isPending}
+                        disabled={registerMutation.isLoading}
                       >
-                        {registerMutation.isPending && (
+                        {registerMutation.isLoading && (
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         )}
-                        {t("Register")}
+                        {t("register")}
                       </Button>
                     </form>
                   </Form>
                 </CardContent>
                 <CardFooter className="flex flex-col items-center">
                   <div className="text-sm text-muted-foreground">
-                    {t("Already have an account?")}
+                    {t("haveAccount")}
                     <Button
                       variant="link"
                       className="pl-1 pr-0"
                       onClick={() => setActiveTab("login")}
                     >
-                      {t("Sign in")}
+                      {t("signIn")}
                     </Button>
                   </div>
                 </CardFooter>
               </Card>
             </TabsContent>
           </Tabs>
+        </div>
+      </div>
+      {/* Hero section */}
+      <div className="hidden md:flex w-1/2 bg-primary/10 items-center justify-center p-10">
+        <div className="max-w-md">
+          <h1 className="text-4xl font-bold tracking-tight mb-4">{t("myWallet")}</h1>
+          <p className="text-xl text-muted-foreground mb-6">
+            {t("aSimpleSecureWay")}
+          </p>
+          <ul className="space-y-2">
+            <li className="flex items-center">
+              <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center mr-2">
+                <span className="text-primary text-sm">✓</span>
+              </div>
+              <span>{t("trackExpensesIncome")}</span>
+            </li>
+            <li className="flex items-center">
+              <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center mr-2">
+                <span className="text-primary text-sm">✓</span>
+              </div>
+              <span>{t("createManageBudgets")}</span>
+            </li>
+            <li className="flex items-center">
+              <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center mr-2">
+                <span className="text-primary text-sm">✓</span>
+              </div>
+              <span>{t("visualizeSpending")}</span>
+            </li>
+            <li className="flex items-center">
+              <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center mr-2">
+                <span className="text-primary text-sm">✓</span>
+              </div>
+              <span>{t("accessDataAnytime")}</span>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
