@@ -1,0 +1,50 @@
+A web-based personal finance app (“My Wallet”) optimized for mobile (PWA) with a clean, modern interface and strong privacy focus. The app should feature:
+	•	Easy tracking of expenses and income with quick entry form
+	•	Budget planning per month and per category, with visual progress indicators
+	•	Breakdown of spending by category using pie charts
+	•	Cash flow graphs (daily, weekly, monthly)
+	•	Local data storage with optional encrypted cloud sync (JSON-based, no database)
+	•	Ability to export and import data files (JSON)
+	•	Full offline support with auto-sync when back online
+	•	Language support for Hebrew (RTL) and English (LTR)
+	•	Theme toggle: light/dark mode
+	•	Installable PWA with app icon, splash screen, and standalone feel
+	•	No user login required, but optional anonymous ID for cloud sync
+	•	Built-in reminders for budgeting goals (optional)
+
+⸻
+
+Landing Page Requirements:
+	•	Single-page design promoting the app
+	•	Clear call-to-action: “Install the app” button (triggers PWA install prompt or downloads app manifest)
+	•	App highlights with icons: easy to use, private, offline-friendly
+	•	Responsive layout for mobile and desktop
+	•	Includes links to Privacy Policy and Support
+	•	Visuals: screenshots of the app, soft gradients or modern flat colors
+	•	Language toggle for the site (Hebrew/English)
+
+⸻
+
+Admin Dashboard (for creator only):
+	•	Password-protected web interface
+	•	Displays anonymized analytics only – no access to user data
+	•	Metrics:
+	•	Total registered users (anonymous IDs only)
+	•	Active users (daily/weekly/monthly)
+	•	Active sessions in real-time (if possible)
+	•	Common app versions / device types
+	•	Optional: export analytics report as CSV
+	•	Clean, minimalist UI with chart components
+
+⸻
+
+UI/Style:
+
+Use a minimal and modern visual style with intuitive navigation.
+Primary colors: soft blue, white, gray tones.
+Dark mode includes deep navy and dark gray backgrounds with clean text.
+Typography should be simple and readable (e.g., “Inter” for English, “Alef” or “Assistant” for Hebrew).
+Use subtle animations and transitions to enhance flow.
+Icons should be flat and universal (use Material Icons or similar).
+
+Sound: No sound effects to preserve the focused and private nature of the app.
