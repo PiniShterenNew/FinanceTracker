@@ -19,16 +19,44 @@ export const CATEGORIES = [
   { id: "other", name: "Other", icon: "category" }
 ];
 
-// Users (for anonymous ID)
+// Payment methods
+export const PAYMENT_METHODS = [
+  { id: "cash", name: "Cash", icon: "payments" },
+  { id: "credit_card", name: "Credit Card", icon: "credit_card" },
+  { id: "debit_card", name: "Debit Card", icon: "credit_card" },
+  { id: "bank_transfer", name: "Bank Transfer", icon: "account_balance" },
+  { id: "digital_wallet", name: "Digital Wallet", icon: "account_balance_wallet" },
+  { id: "check", name: "Check", icon: "money" },
+  { id: "other", name: "Other", icon: "more_horiz" }
+];
+
+// Users
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   anonymousId: text("anonymous_id").notNull().unique(),
+  email: text("email").unique(),
+  username: text("username").unique(),
+  password: text("password"),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  phone: text("phone"),
+  profilePicture: text("profile_picture"),
   settings: jsonb("settings"),
+  resetToken: text("reset_token"),
+  resetTokenExpiry: timestamp("reset_token_expiry"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
   anonymousId: true,
+  email: true,
+  username: true,
+  password: true,
+  firstName: true,
+  lastName: true,
+  phone: true,
+  profilePicture: true,
   settings: true,
 });
 
@@ -84,15 +112,53 @@ export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
 export type Budget = typeof budgets.$inferSelect;
 export type InsertBudget = z.infer<typeof insertBudgetSchema>;
 
+// Payment methods and bank accounts
+export const paymentMethods = pgTable("payment_methods", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  name: text("name").notNull(),
+  type: text("type").notNull(), // credit_card, debit_card, bank_account, digital_wallet, etc.
+  accountNumber: text("account_number"),
+  bankName: text("bank_name"),
+  expiryDate: text("expiry_date"),
+  color: text("color"),
+  icon: text("icon"),
+  isDefault: boolean("is_default").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertPaymentMethodSchema = createInsertSchema(paymentMethods).pick({
+  userId: true,
+  name: true,
+  type: true,
+  accountNumber: true,
+  bankName: true,
+  expiryDate: true,
+  color: true,
+  icon: true,
+  isDefault: true,
+});
+
 // Define frontend types for local storage
 export interface TransactionData extends Omit<Transaction, 'id' | 'userId' | 'createdAt'> {
   id?: number;
   localId?: string;
+  paymentMethodId?: number | string;
 }
 
 export interface BudgetData extends Omit<Budget, 'id' | 'userId' | 'createdAt'> {
   id?: number;
   localId?: string;
+}
+
+export interface PaymentMethodData extends Omit<typeof paymentMethods.$inferSelect, 'id' | 'userId' | 'createdAt' | 'updatedAt'> {
+  id?: number;
+  localId?: string;
+}
+
+export interface UserData extends Omit<User, 'password' | 'resetToken' | 'resetTokenExpiry'> {
+  paymentMethods?: PaymentMethodData[];
 }
 
 export interface UserSettings {
@@ -101,4 +167,8 @@ export interface UserSettings {
   currency: string;
   reminderEnabled: boolean;
   cloudSyncEnabled: boolean;
+  defaultPaymentMethod?: string;
 }
+
+export type PaymentMethod = typeof paymentMethods.$inferSelect;
+export type InsertPaymentMethod = z.infer<typeof insertPaymentMethodSchema>;
