@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { UserSettings, TransactionData, BudgetData } from "@shared/schema";
 import { v4 as uuidv4 } from "uuid";
-// Using direct import for testing
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { generateUniqueId } from "../lib/utils";
 
@@ -215,9 +214,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 };
 
 export const useAppContext = () => {
+  // Add debug log to help diagnose the issue
+  console.log("AppContext:", AppContext);
+  
   const context = useContext(AppContext);
+  console.log("Context value:", context);
   
   if (context === undefined) {
+    console.error("Context is undefined in useAppContext");
     throw new Error("useAppContext must be used within an AppProvider");
   }
   
