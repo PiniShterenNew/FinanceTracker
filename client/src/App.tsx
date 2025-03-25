@@ -7,10 +7,34 @@ import Transactions from "@/pages/Transactions";
 import Budgets from "@/pages/Budgets";
 import Reports from "@/pages/Reports";
 import Settings from "@/pages/Settings";
+import AuthPage from "@/pages/AuthPage";
 import Layout from "@/components/Layout";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useTranslation } from "react-i18next";
 import { useAppContext } from "./context/AppContext";
 import { AppProvider } from "./context/AppContext";
+import { AuthProvider } from "./hooks/use-auth";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./lib/queryClient";
+
+// Configure request interceptor to add auth token to API requests
+const configureAuthInterceptor = () => {
+  const originalFetch = window.fetch;
+  window.fetch = async (input, init) => {
+    // Only add auth header for our API requests
+    if (typeof input === 'string' && input.startsWith('/api')) {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        init = init || {};
+        init.headers = {
+          ...init.headers,
+          Authorization: `Bearer ${token}`,
+        };
+      }
+    }
+    return originalFetch(input, init);
+  };
+};
 
 // Main content component that uses the context
 const WalletContent = () => {
@@ -33,15 +57,21 @@ const WalletContent = () => {
     }
   }, [darkMode]);
 
+  // Configure auth interceptor
+  useEffect(() => {
+    configureAuthInterceptor();
+  }, []);
+
   return (
     <>
       <Layout>
         <Switch>
-          <Route path="/" component={Dashboard} />
-          <Route path="/transactions" component={Transactions} />
-          <Route path="/budgets" component={Budgets} />
-          <Route path="/reports" component={Reports} />
-          <Route path="/settings" component={Settings} />
+          <ProtectedRoute path="/" component={Dashboard} />
+          <ProtectedRoute path="/transactions" component={Transactions} />
+          <ProtectedRoute path="/budgets" component={Budgets} />
+          <ProtectedRoute path="/reports" component={Reports} />
+          <ProtectedRoute path="/settings" component={Settings} />
+          <Route path="/auth" component={AuthPage} />
           <Route component={NotFound} />
         </Switch>
       </Layout>
@@ -53,9 +83,13 @@ const WalletContent = () => {
 // Main App component that provides the context
 function App() {
   return (
-    <AppProvider>
-      <WalletContent />
-    </AppProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <AppProvider>
+          <WalletContent />
+        </AppProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 

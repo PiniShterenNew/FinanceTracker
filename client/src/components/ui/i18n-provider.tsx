@@ -1,6 +1,7 @@
 import React, { createContext, useContext, ReactNode, useEffect } from 'react';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { initializeI18n, changeLanguage } from '@/lib/i18n';
+import i18n from '@/lib/i18n';
+import { useTranslation } from 'react-i18next';
 
 type Language = 'en' | 'he';
 
@@ -25,15 +26,11 @@ export const useI18n = () => useContext(I18nContext);
 
 export const I18nProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguageStorage] = useLocalStorage<Language>('language', 'en');
-  
-  // Initialize i18n
-  useEffect(() => {
-    initializeI18n();
-  }, []);
+  const { t } = useTranslation();
   
   // Change language when language state changes
   useEffect(() => {
-    changeLanguage(language);
+    i18n.changeLanguage(language);
     // Update HTML dir attribute for RTL support
     document.documentElement.dir = language === 'he' ? 'rtl' : 'ltr';
     document.documentElement.lang = language;
@@ -43,16 +40,11 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
     setLanguageStorage(lang);
   };
   
-  // Simple translation function
-  const t = (key: string): string => {
-    return key; // This will be replaced with actual i18n implementation
-  };
-  
-  const value = {
+  const value: I18nContextType = {
     language,
     setLanguage,
     t,
-    dir: language === 'he' ? 'rtl' : 'ltr',
+    dir: language === 'he' ? 'rtl' as const : 'ltr' as const,
     isHebrew: language === 'he',
   };
   
