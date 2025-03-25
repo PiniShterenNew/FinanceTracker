@@ -12,7 +12,15 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { t } = useTranslation();
   const [location] = useLocation();
-  const { language, darkMode, toggleDarkMode, setLanguage, setIsNewTransactionModalOpen } = useAppContext();
+  const { 
+    darkMode, 
+    toggleDarkMode,
+    language,
+    setLanguage,
+    isNewTransactionModalOpen,
+    setIsNewTransactionModalOpen 
+  } = useAppContext();
+  
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   
   // Navigation items
@@ -40,8 +48,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             {navItems.map((item) => (
               <li key={item.id}>
                 <Link href={item.id}>
-                  <a 
-                    className={`flex items-center space-x-3 px-4 py-3 ${
+                  <div 
+                    className={`flex items-center space-x-3 px-4 py-3 cursor-pointer ${
                       location === item.id 
                         ? "text-primary bg-blue-50 dark:bg-blue-900/20 border-r-4 border-primary" 
                         : "text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-dark-navy"
@@ -49,7 +57,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   >
                     <span className="material-icons">{item.icon}</span>
                     <span>{item.label}</span>
-                  </a>
+                  </div>
                 </Link>
               </li>
             ))}
@@ -124,39 +132,39 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             {navItems.slice(0, 2).map((item) => (
               <li key={item.id}>
                 <Link href={item.id}>
-                  <a className={`flex flex-col items-center p-3 ${
+                  <div className={`flex flex-col items-center p-3 cursor-pointer ${
                     location === item.id ? "text-primary" : "text-neutral-500 dark:text-neutral-400"
                   }`}>
                     <span className="material-icons">{item.icon}</span>
                     <span className="text-xs mt-1">{item.label}</span>
-                  </a>
+                  </div>
                 </Link>
               </li>
             ))}
             
             {/* Add Transaction Button */}
             <li>
-              <Link href="/add">
-                <a className="flex flex-col items-center p-3">
-                  <div 
-                    className="w-12 h-12 rounded-full bg-primary -mt-6 flex items-center justify-center text-white shadow-lg"
-                    onClick={() => setIsNewTransactionModalOpen(true)}
-                  >
-                    <span className="material-icons">add</span>
-                  </div>
-                </a>
-              </Link>
+              <div 
+                className="cursor-pointer flex flex-col items-center p-3"
+                onClick={() => setIsNewTransactionModalOpen(true)}
+              >
+                <div 
+                  className="w-12 h-12 rounded-full bg-primary -mt-6 flex items-center justify-center text-white shadow-lg"
+                >
+                  <span className="material-icons">add</span>
+                </div>
+              </div>
             </li>
             
             {navItems.slice(2, 4).map((item) => (
               <li key={item.id}>
                 <Link href={item.id}>
-                  <a className={`flex flex-col items-center p-3 ${
+                  <div className={`flex flex-col items-center p-3 cursor-pointer ${
                     location === item.id ? "text-primary" : "text-neutral-500 dark:text-neutral-400"
                   }`}>
                     <span className="material-icons">{item.icon}</span>
                     <span className="text-xs mt-1">{item.label}</span>
-                  </a>
+                  </div>
                 </Link>
               </li>
             ))}
