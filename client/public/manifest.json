@@ -1,0 +1,43 @@
+{
+  "name": "My Wallet - Personal Finance App",
+  "short_name": "My Wallet",
+  "description": "Track expenses, plan budgets, and manage your finances with privacy",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3B82F6",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "orientation": "portrait",
+  "categories": ["finance", "productivity"],
+  "lang": "en",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Add Transaction",
+      "short_name": "Add",
+      "description": "Add a new transaction",
+      "url": "/?add=true"
+    },
+    {
+      "name": "View Budgets",
+      "short_name": "Budgets",
+      "description": "View your budgets",
+      "url": "/budgets"
+    }
+  ]
+}

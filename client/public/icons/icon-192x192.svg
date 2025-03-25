@@ -1,0 +1,16 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="192" height="192" rx="48" fill="#3B82F6"/>
+  
+  <!-- Wallet Icon - Simple and recognizable -->
+  <g transform="translate(40, 50)">
+    <!-- Wallet Body -->
+    <rect x="0" y="0" width="112" height="85" rx="12" fill="#FFFFFF"/>
+    
+    <!-- Wallet Flap -->
+    <path d="M112 30H88C82.4772 30 78 34.4772 78 40V45C78 50.5228 82.4772 55 88 55H112V30Z" fill="#93C5FD"/>
+    
+    <!-- Dollar Sign -->
+    <path d="M56 30V55M56 30C56 25 53 20 45 20C37 20 34 25 34 30C34 45 56 35 56 50C56 55 53 60 45 60C37 60 34 55 34 50" stroke="#3B82F6" stroke-width="8" stroke-linecap="round"/>
+  </g>
+</svg>
