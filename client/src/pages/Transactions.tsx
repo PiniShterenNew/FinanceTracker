@@ -92,7 +92,7 @@ const Transactions: React.FC = () => {
                   <SelectValue placeholder={t("category")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">{t("allCategories")}</SelectItem>
+                  <SelectItem value="all">{t("allCategories")}</SelectItem>
                   {CATEGORIES.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
                       {t(`categories.${category.id}`)}
@@ -108,7 +108,7 @@ const Transactions: React.FC = () => {
                   <SelectValue placeholder={t("type")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">{t("allTypes")}</SelectItem>
+                  <SelectItem value="all">{t("allTypes")}</SelectItem>
                   <SelectItem value="expense">{t("expense")}</SelectItem>
                   <SelectItem value="income">{t("income")}</SelectItem>
                 </SelectContent>
