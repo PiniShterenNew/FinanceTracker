@@ -269,12 +269,12 @@ export class MemStorage implements IStorage {
       userId: paymentMethod.userId,
       name: paymentMethod.name,
       type: paymentMethod.type,
-      accountNumber: paymentMethod.accountNumber || null,
-      bankName: paymentMethod.bankName || null,
-      expiryDate: paymentMethod.expiryDate || null,
-      color: paymentMethod.color || null,
-      icon: paymentMethod.icon || null,
-      isDefault: paymentMethod.isDefault || false,
+      accountNumber: paymentMethod.accountNumber ?? null,
+      bankName: paymentMethod.bankName ?? null,
+      expiryDate: paymentMethod.expiryDate ?? null,
+      color: paymentMethod.color ?? null,
+      icon: paymentMethod.icon ?? null,
+      isDefault: paymentMethod.isDefault ?? false,
       createdAt: now,
       updatedAt: now
     };
@@ -283,7 +283,9 @@ export class MemStorage implements IStorage {
     
     // If this is set as default, update other payment methods for this user
     if (newPaymentMethod.isDefault) {
-      for (const [otherPmId, otherPm] of this.paymentMethods.entries()) {
+      // Convert entries to array before iterating
+      const entries = Array.from(this.paymentMethods.entries());
+      for (const [otherPmId, otherPm] of entries) {
         if (otherPmId !== id && otherPm.userId === paymentMethod.userId && otherPm.isDefault) {
           const updated = { ...otherPm, isDefault: false, updatedAt: now };
           this.paymentMethods.set(otherPmId, updated);
@@ -320,7 +322,9 @@ export class MemStorage implements IStorage {
     
     // Handle default status changes
     if (updates.isDefault === true) {
-      for (const [otherPmId, otherPm] of this.paymentMethods.entries()) {
+      // Convert entries to array before iterating
+      const entries = Array.from(this.paymentMethods.entries());
+      for (const [otherPmId, otherPm] of entries) {
         if (otherPmId !== id && otherPm.userId === paymentMethod.userId && otherPm.isDefault) {
           const updated = { ...otherPm, isDefault: false, updatedAt: now };
           this.paymentMethods.set(otherPmId, updated);
