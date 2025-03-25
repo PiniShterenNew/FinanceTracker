@@ -5,18 +5,16 @@ import crypto from "crypto";
 import { insertUserSchema, insertPaymentMethodSchema, CATEGORIES, PAYMENT_METHODS } from "@shared/schema";
 import { z } from "zod";
 import jwt from 'jsonwebtoken';
+import { setupAuth } from "./auth";
 
-// Extend Express Request type to include user property
-declare global {
-  namespace Express {
-    interface Request {
-      user?: any;
-    }
+// Authentication middleware that checks if the user is logged in
+// This can be used with either session auth or JWT
+const requireAuth = (req: Request, res: Response, next: NextFunction) => {
+  if (req.isAuthenticated()) {
+    return next();
   }
-}
-
-// JWT verification middleware
-const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
+  
+  // Try JWT authentication if session authentication failed
   const authHeader = req.headers.authorization;
   
   if (!authHeader) {
@@ -26,8 +24,8 @@ const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
   const token = authHeader.split(' ')[1];
   
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'mywallet-secret-key');
-    req.user = decoded;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'mywallet-secret-key') as { id: number };
+    req.user = { id: decoded.id };
     next();
   } catch (error) {
     return res.status(403).json({ message: 'Invalid or expired token' });
@@ -57,52 +55,14 @@ function decrypt(text: string, secretKey: string): string {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Authentication routes
-  app.post("/api/register", async (req, res) => {
-    try {
-      // Validate request body against schema
-      const validatedData = insertUserSchema.parse(req.body);
-      
-      // Check if user already exists
-      if (validatedData.email) {
-        const existingUserByEmail = await storage.getUserByEmail(validatedData.email);
-        if (existingUserByEmail) {
-          return res.status(400).json({ message: 'User with this email already exists' });
-        }
-      }
-      
-      if (validatedData.username) {
-        const existingUserByUsername = await storage.getUserByUsername(validatedData.username);
-        if (existingUserByUsername) {
-          return res.status(400).json({ message: 'User with this username already exists' });
-        }
-      }
-      
-      // Create user
-      const user = await storage.createUser(validatedData);
-      
-      // Generate a token
-      const token = jwt.sign(
-        { id: user.id, username: user.username, email: user.email },
-        process.env.JWT_SECRET || 'mywallet-secret-key',
-        { expiresIn: '7d' }
-      );
-      
-      // Don't send password back to client
-      const { password, resetToken, resetTokenExpiry, ...safeUser } = user;
-      
-      res.status(201).json({ user: safeUser, token });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        res.status(400).json({ message: 'Validation error', errors: error.errors });
-      } else {
-        console.error(error);
-        res.status(500).json({ message: 'Server error during registration' });
-      }
-    }
-  });
+  // Initialize passport and session authentication
+  setupAuth(app);
   
-  app.post("/api/login", async (req, res) => {
+  // Enable both session and JWT authentication for the API
+  // Session authentication routes are provided by setupAuth
+  
+  // JWT-specific routes for mobile/API clients
+  app.post("/api/jwt/login", async (req, res) => {
     try {
       const { username, email, password } = req.body;
       
@@ -181,10 +141,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Protected user routes
-  app.get("/api/user", authenticateJWT, async (req, res) => {
+  // Protected user routes - uses both session and JWT authentication
+  app.get("/api/user", requireAuth, async (req, res) => {
     try {
-      const userId = req.user.id;
+      const userId = typeof req.user === 'object' ? req.user.id : req.user;
       const user = await storage.getUser(userId);
       
       if (!user) {
@@ -204,9 +164,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  app.put("/api/user", authenticateJWT, async (req, res) => {
+  app.put("/api/user", requireAuth, async (req, res) => {
     try {
-      const userId = req.user.id;
+      const userId = typeof req.user === 'object' ? req.user.id : req.user;
       const updateData = req.body;
       
       // Validate update data
@@ -231,9 +191,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Payment methods routes
-  app.post("/api/payment-methods", authenticateJWT, async (req, res) => {
+  app.post("/api/payment-methods", requireAuth, async (req, res) => {
     try {
-      const userId = req.user.id;
+      const userId = typeof req.user === 'object' ? req.user.id : req.user;
       
       // Validate request body
       const data = { ...req.body, userId };
@@ -251,9 +211,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  app.get("/api/payment-methods", authenticateJWT, async (req, res) => {
+  app.get("/api/payment-methods", requireAuth, async (req, res) => {
     try {
-      const userId = req.user.id;
+      const userId = typeof req.user === 'object' ? req.user.id : req.user;
       const paymentMethods = await storage.getPaymentMethods(userId);
       res.json(paymentMethods);
     } catch (error) {
@@ -262,8 +222,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  app.get("/api/payment-methods/:id", authenticateJWT, async (req, res) => {
+  app.get("/api/payment-methods/:id", requireAuth, async (req, res) => {
     try {
+      const userId = typeof req.user === 'object' ? req.user.id : req.user;
       const id = parseInt(req.params.id);
       const paymentMethod = await storage.getPaymentMethod(id);
       
@@ -272,7 +233,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check if this payment method belongs to the authenticated user
-      if (paymentMethod.userId !== req.user.id) {
+      if (paymentMethod.userId !== userId) {
         return res.status(403).json({ message: 'Not authorized to access this payment method' });
       }
       
@@ -283,8 +244,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  app.put("/api/payment-methods/:id", authenticateJWT, async (req, res) => {
+  app.put("/api/payment-methods/:id", requireAuth, async (req, res) => {
     try {
+      const userId = typeof req.user === 'object' ? req.user.id : req.user;
       const id = parseInt(req.params.id);
       const existingPaymentMethod = await storage.getPaymentMethod(id);
       
@@ -293,7 +255,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check if this payment method belongs to the authenticated user
-      if (existingPaymentMethod.userId !== req.user.id) {
+      if (existingPaymentMethod.userId !== userId) {
         return res.status(403).json({ message: 'Not authorized to update this payment method' });
       }
       
@@ -306,8 +268,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  app.delete("/api/payment-methods/:id", authenticateJWT, async (req, res) => {
+  app.delete("/api/payment-methods/:id", requireAuth, async (req, res) => {
     try {
+      const userId = typeof req.user === 'object' ? req.user.id : req.user;
       const id = parseInt(req.params.id);
       const existingPaymentMethod = await storage.getPaymentMethod(id);
       
@@ -316,7 +279,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check if this payment method belongs to the authenticated user
-      if (existingPaymentMethod.userId !== req.user.id) {
+      if (existingPaymentMethod.userId !== userId) {
         return res.status(403).json({ message: 'Not authorized to delete this payment method' });
       }
       
