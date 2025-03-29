@@ -46,8 +46,7 @@ type BudgetFormValues = z.infer<typeof budgetFormSchema>;
 
 const Budgets: React.FC = () => {
   const { t } = useTranslation();
-  const { budgets, addBudget, updateBudget, deleteBudget, transactions, currency } = useAppContext();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { budgets, addBudget, updateBudget, deleteBudget, transactions, currency, isNewBudgetModalOpen, setIsNewBudgetModalOpen } = useAppContext();
   const [editingBudget, setEditingBudget] = useState<BudgetData | null>(null);
   
   // Initialize form
@@ -69,7 +68,7 @@ const Budgets: React.FC = () => {
       endDate: format(endOfMonth(new Date()), "yyyy-MM-dd"),
     });
     setEditingBudget(null);
-    setIsDialogOpen(true);
+    setIsNewBudgetModalOpen(true);
   };
   
   const openEditBudgetDialog = (budget: BudgetData) => {
@@ -80,7 +79,7 @@ const Budgets: React.FC = () => {
       endDate: format(new Date(budget.endDate), "yyyy-MM-dd"),
     });
     setEditingBudget(budget);
-    setIsDialogOpen(true);
+    setIsNewBudgetModalOpen(true);
   };
   
   const onSubmit = (data: BudgetFormValues) => {
@@ -97,13 +96,13 @@ const Budgets: React.FC = () => {
       addBudget(budgetData);
     }
     
-    setIsDialogOpen(false);
+    setIsNewBudgetModalOpen(false);
   };
   
   const handleDeleteBudget = () => {
     if (editingBudget) {
       deleteBudget(editingBudget.localId!);
-      setIsDialogOpen(false);
+      setIsNewBudgetModalOpen(false);
     }
   };
   
@@ -199,7 +198,7 @@ const Budgets: React.FC = () => {
       )}
       
       {/* Budget Form Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isNewBudgetModalOpen} onOpenChange={setIsNewBudgetModalOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>

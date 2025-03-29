@@ -18,7 +18,7 @@ interface AppContextType {
   setCurrency: (currency: string) => void;
   toggleReminderEnabled: () => void;
   toggleCloudSyncEnabled: () => void;
-  
+
   // Data
   transactions: TransactionData[];
   budgets: BudgetData[];
@@ -28,12 +28,15 @@ interface AppContextType {
   addBudget: (budget: BudgetData) => void;
   updateBudget: (id: string, budget: BudgetData) => void;
   deleteBudget: (id: string) => void;
-  
+
   // App State
   isOffline: boolean;
   isNewTransactionModalOpen: boolean;
   setIsNewTransactionModalOpen: (isOpen: boolean) => void;
-  
+
+  isNewBudgetModalOpen: boolean;
+  setIsNewBudgetModalOpen: (isOpen: boolean) => void;
+
   // Data Export/Import
   exportData: () => string;
   importData: (jsonData: string) => void;
@@ -47,27 +50,30 @@ const defaultContextValue: AppContextType = {
   currency: "$",
   reminderEnabled: false,
   cloudSyncEnabled: false,
-  setLanguage: () => {},
-  toggleDarkMode: () => {},
-  setCurrency: () => {},
-  toggleReminderEnabled: () => {},
-  toggleCloudSyncEnabled: () => {},
-  
+  setLanguage: () => { },
+  toggleDarkMode: () => { },
+  setCurrency: () => { },
+  toggleReminderEnabled: () => { },
+  toggleCloudSyncEnabled: () => { },
+
   transactions: [],
   budgets: [],
-  addTransaction: () => {},
-  updateTransaction: () => {},
-  deleteTransaction: () => {},
-  addBudget: () => {},
-  updateBudget: () => {},
-  deleteBudget: () => {},
-  
+  addTransaction: () => { },
+  updateTransaction: () => { },
+  deleteTransaction: () => { },
+  addBudget: () => { },
+  updateBudget: () => { },
+  deleteBudget: () => { },
+
   isOffline: false,
   isNewTransactionModalOpen: false,
-  setIsNewTransactionModalOpen: () => {},
-  
+  setIsNewTransactionModalOpen: () => { },
+
+  isNewBudgetModalOpen: false,
+  setIsNewBudgetModalOpen: () => { },
+
   exportData: () => "",
-  importData: () => {}
+  importData: () => { }
 };
 
 const AppContext = createContext<AppContextType>(defaultContextValue);
@@ -79,42 +85,43 @@ interface AppProviderProps {
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   // Generate or get anonymousId
   const [anonymousId, setAnonymousId] = useLocalStorage("anonymousId", "");
-  
+
   useEffect(() => {
     if (!anonymousId) {
       setAnonymousId(uuidv4());
     }
   }, [anonymousId, setAnonymousId]);
-  
+
   // User settings with defaults
   const [language, setLanguage] = useLocalStorage("language", "en");
   const [darkMode, setDarkMode] = useLocalStorage("darkMode", false);
   const [currency, setCurrency] = useLocalStorage("currency", "$");
   const [reminderEnabled, setReminderEnabled] = useLocalStorage("reminderEnabled", false);
   const [cloudSyncEnabled, setCloudSyncEnabled] = useLocalStorage("cloudSyncEnabled", false);
-  
+
   // Data storage
   const [transactions, setTransactions] = useLocalStorage<TransactionData[]>("transactions", []);
   const [budgets, setBudgets] = useLocalStorage<BudgetData[]>("budgets", []);
-  
+
   // App state
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [isNewTransactionModalOpen, setIsNewTransactionModalOpen] = useState(false);
-  
+  const [isNewBudgetModalOpen, setIsNewBudgetModalOpen] = useState(false);
+
   // Monitor online/offline status
   useEffect(() => {
     const handleOnline = () => setIsOffline(false);
     const handleOffline = () => setIsOffline(true);
-    
+
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
-    
+
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
   }, []);
-  
+
   // Data manipulation functions
   const addTransaction = (transaction: TransactionData) => {
     const newTransaction = {
@@ -124,17 +131,17 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     };
     setTransactions([newTransaction, ...transactions]);
   };
-  
+
   const updateTransaction = (localId: string, transaction: TransactionData) => {
     setTransactions(
       transactions.map((t) => (t.localId === localId ? { ...t, ...transaction, syncStatus: "pending" } : t))
     );
   };
-  
+
   const deleteTransaction = (localId: string) => {
     setTransactions(transactions.filter((t) => t.localId !== localId));
   };
-  
+
   const addBudget = (budget: BudgetData) => {
     const newBudget = {
       ...budget,
@@ -142,29 +149,29 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     };
     setBudgets([...budgets, newBudget]);
   };
-  
+
   const updateBudget = (localId: string, budget: BudgetData) => {
     setBudgets(budgets.map((b) => (b.localId === localId ? { ...b, ...budget } : b)));
   };
-  
+
   const deleteBudget = (localId: string) => {
     setBudgets(budgets.filter((b) => b.localId !== localId));
   };
-  
+
   // Theme toggle
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
-  
+
   // Feature toggles
   const toggleReminderEnabled = () => {
     setReminderEnabled(!reminderEnabled);
   };
-  
+
   const toggleCloudSyncEnabled = () => {
     setCloudSyncEnabled(!cloudSyncEnabled);
   };
-  
+
   // Data export/import
   const exportData = () => {
     const data = {
@@ -180,22 +187,22 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     };
     return JSON.stringify(data);
   };
-  
+
   const importData = (jsonData: string) => {
     try {
       const data = JSON.parse(jsonData);
-      
+
       if (data.transactions) {
         setTransactions(data.transactions);
       }
-      
+
       if (data.budgets) {
         setBudgets(data.budgets);
       }
-      
+
       if (data.settings) {
         const { language, darkMode, currency, reminderEnabled, cloudSyncEnabled } = data.settings;
-        
+
         if (language) setLanguage(language);
         if (darkMode !== undefined) setDarkMode(darkMode);
         if (currency) setCurrency(currency);
@@ -207,7 +214,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       throw new Error("Invalid data format");
     }
   };
-  
+
   // Create full context value
   const contextValue: AppContextType = {
     anonymousId,
@@ -221,7 +228,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setCurrency,
     toggleReminderEnabled,
     toggleCloudSyncEnabled,
-    
+
     transactions,
     budgets,
     addTransaction,
@@ -230,15 +237,18 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     addBudget,
     updateBudget,
     deleteBudget,
-    
+
     isOffline,
     isNewTransactionModalOpen,
     setIsNewTransactionModalOpen,
-    
+
+    isNewBudgetModalOpen,
+    setIsNewBudgetModalOpen,
+
     exportData,
     importData,
   };
-  
+
   return (
     <AppContext.Provider value={contextValue}>
       {children}

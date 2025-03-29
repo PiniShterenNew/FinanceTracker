@@ -142,26 +142,26 @@ FormDescription.displayName = "FormDescription"
 
 const FormMessage = React.forwardRef<
   HTMLParagraphElement,
-  React.HTMLAttributes<HTMLParagraphElement>
->(({ className, children, ...props }, ref) => {
-  const { error, formMessageId } = useFormField()
-  const body = error ? String(error?.message) : children
+  React.HTMLAttributes<HTMLParagraphElement> & { asChild?: boolean }
+>(({ className, children, asChild, ...props }, ref) => {
+  const { error, formMessageId } = useFormField();
+  const body = error ? String(error?.message) : children;
 
-  if (!body) {
-    return null
-  }
+  if (!body) return null;
+
+  const Comp = asChild ? Slot : "p";
 
   return (
-    <p
+    <Comp
       ref={ref}
       id={formMessageId}
       className={cn("text-sm font-medium text-destructive", className)}
       {...props}
     >
       {body}
-    </p>
-  )
-})
+    </Comp>
+  );
+});
 FormMessage.displayName = "FormMessage"
 
 export {

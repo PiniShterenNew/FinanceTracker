@@ -7,6 +7,7 @@ import { promisify } from "util";
 import { storage } from "./storage";
 import { User as SelectUser } from "@shared/schema";
 import MemoryStore from "memorystore";
+import { hashPassword, comparePasswords } from "./password-utils";
 
 declare global {
   namespace Express {
@@ -15,28 +16,6 @@ declare global {
 }
 
 const scryptAsync = promisify(scrypt);
-
-async function hashPassword(password: string) {
-  const salt = randomBytes(16).toString("hex");
-  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
-  return `${buf.toString("hex")}.${salt}`;
-}
-
-async function comparePasswords(supplied: string, stored: string) {
-  // If no stored password or invalid format, return false
-  if (!stored || !stored.includes(".")) {
-    return false;
-  }
-  
-  const [hashed, salt] = stored.split(".");
-  if (!hashed || !salt) {
-    return false;
-  }
-  
-  const hashedBuf = Buffer.from(hashed, "hex");
-  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
-  return timingSafeEqual(hashedBuf, suppliedBuf);
-}
 
 export function setupAuth(app: Express) {
   const MemStore = MemoryStore(session);
@@ -59,18 +38,49 @@ export function setupAuth(app: Express) {
   app.use(passport.session());
 
   passport.use(
-    new LocalStrategy(async (username, password, done) => {
-      try {
-        const user = await storage.getUserByUsername(username);
-        if (!user || !user.password || !(await comparePasswords(password, user.password as string))) {
-          return done(null, false);
-        } else {
-          return done(null, user);
+    new LocalStrategy(
+      // הגדרת אפשרויות לתמיכה בשימוש בשדה אימייל
+      {
+        usernameField: 'username', // שם השדה בבקשה (יכול להיות גם אימייל)
+        passwordField: 'password'
+      },
+      async (username, password, done) => {
+        try {
+          console.log("🔑 Attempt login:", username);
+          
+          // בדיקה האם זה נראה כמו אימייל
+          const isEmail = username.includes('@');
+          
+          // חיפוש משתמש לפי שם משתמש או אימייל
+          let user = null;
+          if (isEmail) {
+            console.log("👆 Trying login with email");
+            user = await storage.getUserByEmail(username);
+          } else {
+            console.log("👆 Trying login with username");
+            user = await storage.getUserByUsername(username);
+          }
+          
+          if (!user) {
+            console.log("❌ User not found");
+            return done(null, false);
+          }
+      
+          console.log("👤 User found:", user.username);
+          const match = await comparePasswords(password, user.password as string);
+          console.log("🧪 Password match:", match);
+      
+          if (!user.password || !match) {
+            return done(null, false);
+          } else {
+            return done(null, user);
+          }
+        } catch (err) {
+          console.error("🔥 Error in login:", err);
+          return done(err);
         }
-      } catch (err) {
-        return done(err);
       }
-    }),
+    )
   );
 
   passport.serializeUser((user, done) => {

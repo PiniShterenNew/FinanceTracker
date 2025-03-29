@@ -15,27 +15,28 @@
   [dir="rtl"] .flip-direction {
     transform: scaleX(-1);
   }
-    
+
   /* Custom Scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
-    
+
   ::-webkit-scrollbar-track {
     @apply bg-neutral-100 dark:bg-dark-navy;
   }
-    
+
   ::-webkit-scrollbar-thumb {
     @apply bg-neutral-300 dark:bg-neutral-700 rounded;
   }
-    
+
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-neutral-500 dark:bg-neutral-600;
   }
 
   /* PWA Styles */
-  html, body {
+  html,
+  body {
     overscroll-behavior-y: none;
     overscroll-behavior-x: none;
     -webkit-overflow-scrolling: touch;
@@ -53,19 +54,95 @@
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 150ms;
   }
-    
+
   /* Chart canvas fix */
   canvas {
     max-width: 100%;
   }
 }
 
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir="rtl"] input,
+[dir="rtl"] textarea {
+  text-align: right;
+}
+
 /* Dark Mode Colors */
 :root {
-  --dark-navy: #0F172A;
-  --dark-gray: #1E293B;
-  --primary: #3B82F6;
-  --secondary: #93C5FD;
-  --positive: #10B981;
-  --negative: #EF4444;
+  /* Light Theme Colors (Default) */
+  --background: 0 0% 100%;
+  --foreground: 222.2 47.4% 11.2%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 47.4% 11.2%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 47.4% 11.2%;
+  --primary: 217.2 91.2% 59.8%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 217.2 91.2% 59.8%;
+
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 222.2 47.4% 11.2%;
+  --sidebar-primary: 217.2 91.2% 59.8%;
+  --sidebar-primary-foreground: 210 40% 98%;
+  --sidebar-accent: 210 100% 96%;
+  --sidebar-accent-foreground: 222.2 47.4% 11.2%;
+  --sidebar-border: 214.3 31.8% 91.4%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+
+  --chart-1: 217.2 91.2% 59.8%;
+  --chart-2: 158.1 84.6% 43.7%;
+  --chart-3: 42.1 93.5% 55.1%;
+  --chart-4: 0 84.2% 60.2%;
+  --chart-5: 262.1 83.3% 57.8%;
+}
+
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 217.2 91.2% 59.8%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 217.2 91.2% 59.8%;
+
+  --sidebar-background: 217.2 32.6% 17.5%;
+  --sidebar-foreground: 210 40% 98%;
+  --sidebar-primary: 217.2 91.2% 59.8%;
+  --sidebar-primary-foreground: 210 40% 98%;
+  --sidebar-accent: 217.2 91.2% 30.8%;
+  --sidebar-accent-foreground: 210 40% 98%;
+  --sidebar-border: 217.2 32.6% 17.5%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+
+  --chart-1: 217.2 91.2% 59.8%;
+  --chart-2: 158.1 84.6% 43.7%;
+  --chart-3: 42.1 93.5% 55.1%;
+  --chart-4: 0 84.2% 60.2%;
+  --chart-5: 262.1 83.3% 57.8%;
 }

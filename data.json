@@ -1,0 +1,22 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "anonymousId": "ea66c127-13c0-46e4-a6a7-7cba8be8f0a8",
+      "email": "pini5192@gmail.com",
+      "username": "pini5192@gmail.com",
+      "password": "12345678",
+      "firstName": null,
+      "lastName": null,
+      "phone": null,
+      "profilePicture": null,
+      "settings": {},
+      "resetToken": null,
+      "resetTokenExpiry": null,
+      "createdAt": "2025-03-29T15:40:12.206Z",
+      "updatedAt": "2025-03-29T15:40:12.206Z"
+    }
+  ],
+  "paymentMethods": [],
+  "cloudData": []
+}
